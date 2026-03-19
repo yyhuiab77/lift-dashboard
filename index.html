@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lift Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-theme="orange">
+  <!-- Inline SVG icons -->
+  <svg style="display:none" aria-hidden="true">
+    <symbol id="icon-add" viewBox="0 0 24 24"><path fill="currentColor" d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"/></symbol>
+    <symbol id="icon-edit" viewBox="0 0 24 24"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></symbol>
+    <symbol id="icon-delete" viewBox="0 0 24 24"><path fill="currentColor" d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></symbol>
+    <symbol id="icon-export" viewBox="0 0 24 24"><path fill="currentColor" d="M5 20h14v-2H5v2zM11 4h2v8h3l-4 4-4-4h3V4z"/></symbol>
+    <symbol id="icon-calendar" viewBox="0 0 24 24"><path fill="currentColor" d="M7 10h5v5H7zM19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zM5 20V9h14v11H5z"/></symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24"><path fill="currentColor" d="M12 20a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12 3.41 13.41 9 19l12-12L19.59 5 9 16.17z"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></symbol>
+    <symbol id="icon-collapse" viewBox="0 0 24 24"><path fill="currentColor" d="M7 10l5 5 5-5z"/></symbol>
+    <symbol id="icon-expand" viewBox="0 0 24 24"><path fill="currentColor" d="M7 14l5-5 5 5z"/></symbol>
+    <symbol id="icon-top" viewBox="0 0 24 24"><path fill="currentColor" d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.59 5.58L20 12 12 4z"/></symbol>
+  </svg>
+
+  <header class="topbar" role="banner">
+    <div class="brand-wrap">
+      <h1 class="brand"><svg class="icon"><use href="#icon-calendar"></use></svg> Lift Dashboard</h1>
+      <p class="tagline">Maintenance, repairs and suspension overview — clear at a glance</p>
+    </div>
+
+    <nav class="nav" aria-label="Main navigation">
+      <button class="tabbtn" data-panel="dashboardPanel" id="tabDashboard">Dashboard</button>
+      <button class="tabbtn" data-panel="inventoryPanel" id="tabInventory">Inventory</button>
+      <button class="tabbtn" data-panel="repairPanel" id="tabRepair">Repair Log</button>
+      <button class="tabbtn" data-panel="maintenancePanel" id="tabMaintenance">Maintenance</button>
+      <button class="tabbtn" data-panel="timetablePanel" id="tabTimetable">Timetable</button>
+    </nav>
+
+    <div class="header-actions">
+      <button id="backToTopBtn" class="btn small" title="Back to top"><svg class="icon small"><use href="#icon-top"></use></svg> Top</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Dashboard -->
+    <section id="dashboardPanel" class="panel" aria-labelledby="tabDashboard">
+      <h2>Overview</h2>
+
+      <div class="cards-grid">
+        <div class="card stat" id="statTotalLifts"><div class="stat-value">0</div><div class="stat-label">Total Lifts</div></div>
+        <div class="card stat" id="statSuspended"><div class="stat-value">0</div><div class="stat-label">Currently Suspended</div></div>
+        <div class="card stat" id="statMaintenance"><div class="stat-value">0</div><div class="stat-label">Under Maintenance</div></div>
+        <div class="card stat" id="statOutstandingRepairs"><div class="stat-value">0</div><div class="stat-label">Outstanding Repairs</div></div>
+      </div>
+
+      <div class="card">
+        <h3>Outstanding Repairs</h3>
+        <p class="muted">Repairs without an end time or still ongoing.</p>
+        <table id="outstandingTable" class="striped sortable">
+          <thead><tr><th data-key="block">Block</th><th data-key="liftNo">Lift</th><th data-key="start">Start</th><th data-key="reason">Reason</th><th data-key="followUp">Follow Up</th><th data-key="age">Age</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Repeated Repairs (last 90 days)</h3>
+        <p class="muted">Lifts with multiple repair entries in the recent period.</p>
+        <table id="repeatedTable" class="striped sortable">
+          <thead><tr><th data-key="block">Block</th><th data-key="liftNo">Lift</th><th data-key="count">Count</th><th data-key="last">Last Repair</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Suspension Dashboard</h3>
+        <p class="muted">Quick status of all lifts and next resume times.</p>
+        <div id="suspensionSummary" class="suspension-summary"></div>
+      </div>
+    </section>
+
+    <!-- Inventory -->
+    <section id="inventoryPanel" class="panel" hidden aria-labelledby="tabInventory">
+      <h2>Lift Inventory</h2>
+
+      <form id="inventoryForm" class="card" aria-label="Add or edit lift">
+        <div class="form-row">
+          <div class="field"><label for="blockInput">Block</label><input id="blockInput" name="block" required /></div>
+          <div class="field"><label for="liftNoInput">Lift No</label><input id="liftNoInput" name="liftNo" required /></div>
+          <div class="field actions">
+            <button type="submit" class="btn primary" id="inventorySaveBtn"><svg class="icon"><use href="#icon-add"></use></svg> Add Lift</button>
+            <button type="button" class="btn" id="inventoryCancelEdit" hidden><svg class="icon"><use href="#icon-close"></use></svg> Cancel</button>
+          </div>
+        </div>
+        <input type="hidden" id="editingLiftId" value="" />
+      </form>
+
+      <div class="card controls">
+        <div class="field"><label for="filterBlock">Filter by Block</label><select id="filterBlock"><option value="">All</option></select></div>
+        <div class="field file-actions">
+          <input id="importLiftsFile" type="file" accept=".csv" aria-label="Import lifts CSV" />
+          <button id="importLiftsBtn" class="btn">Import</button>
+          <button id="exportLiftsBtn" class="btn">Export</button>
+        </div>
+      </div>
+
+      <div class="card collapsible" id="currentLiftsCard">
+        <div class="card-header">
+          <h3>Current Lifts</h3>
+          <div class="card-actions">
+            <button id="toggleLiftsBtn" class="btn small" title="Minimize/Expand"><svg class="icon small" id="toggleLiftsIcon"><use href="#icon-collapse"></use></svg></button>
+            <button id="refreshLiftsBtn" class="btn small" title="Refresh">Refresh</button>
+          </div>
+        </div>
+        <div class="card-body" id="currentLiftsBody">
+          <table id="liftTable" class="striped sortable" aria-live="polite">
+            <thead><tr><th data-key="block">Block</th><th data-key="liftNo">Lift No</th><th>Actions</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Repair Log -->
+    <section id="repairPanel" class="panel" hidden aria-labelledby="tabRepair">
+      <h2>Lift Repair Log</h2>
+
+      <form id="repairForm" class="card" aria-label="Add repair log">
+        <div class="form-grid">
+          <label for="rBlock">Block</label><select id="rBlock" required></select>
+          <label for="rLift">Lift No</label><select id="rLift" required></select>
+          <label for="rStart">Repair Start</label><input id="rStart" type="datetime-local" required />
+          <label for="rEnd">Repair End</label><input id="rEnd" type="datetime-local" />
+          <label for="rReason">Repair Reason</label><input id="rReason" required />
+          <label for="rFollow">Follow Up Actions</label><input id="rFollow" required />
+          <label for="rRemarks">Remarks</label><input id="rRemarks" />
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn primary"><svg class="icon"><use href="#icon-check"></use></svg> Add Repair Log</button>
+          <button id="exportRepairs" type="button" class="btn"><svg class="icon"><use href="#icon-export"></use></svg> Export Repairs</button>
+        </div>
+      </form>
+
+      <div class="card">
+        <h3>Repair Logs</h3>
+        <div class="muted">Scrollable list of repair logs. New entries are highlighted.</div>
+        <div class="table-scroll" id="repairTableWrap">
+          <table id="repairTable" class="striped sortable" aria-live="polite">
+            <thead><tr><th data-key="block">Block</th><th data-key="liftNo">Lift</th><th data-key="start">Start</th><th data-key="end">End</th><th data-key="reason">Reason</th><th data-key="followUp">Follow Up</th><th data-key="remarks">Remarks</th><th>Actions</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Maintenance -->
+    <section id="maintenancePanel" class="panel" hidden aria-labelledby="tabMaintenance">
+      <h2>Maintenance Log and Lock Schedule</h2>
+
+      <form id="maintenanceForm" class="card" aria-label="Add maintenance or lock">
+        <div class="form-grid">
+          <label for="mBlock">Block</label><select id="mBlock" required></select>
+          <label for="mLift">Lift No</label><select id="mLift" required></select>
+          <label for="mType">Type</label><select id="mType" required><option value="maintenance">Maintenance</option><option value="lock">Lock</option></select>
+          <label for="mStart">Start</label><input id="mStart" type="datetime-local" required />
+          <label for="mEnd">End</label><input id="mEnd" type="datetime-local" required />
+          <label for="mRecurrence">Recurrence</label><select id="mRecurrence"><option value="none">None</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select>
+          <label for="mInterval">Interval</label><input id="mInterval" type="number" min="1" value="1" />
+          <div class="field weekdays">
+            <label>Weekdays (for weekly)</label>
+            <div class="weekday-grid">
+              <label><input type="checkbox" value="MO" class="weekday"> Mon</label>
+              <label><input type="checkbox" value="TU" class="weekday"> Tue</label>
+              <label><input type="checkbox" value="WE" class="weekday"> Wed</label>
+              <label><input type="checkbox" value="TH" class="weekday"> Thu</label>
+              <label><input type="checkbox" value="FR" class="weekday"> Fri</label>
+              <label><input type="checkbox" value="SA" class="weekday"> Sat</label>
+              <label><input type="checkbox" value="SU" class="weekday"> Sun</label>
+            </div>
+          </div>
+          <label for="mNote">Note</label><input id="mNote" />
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn primary"><svg class="icon"><use href="#icon-add"></use></svg> Add Entry</button>
+          <button id="clearSchedules" type="button" class="btn warn"><svg class="icon"><use href="#icon-delete"></use></svg> Clear Schedules</button>
+          <button id="exportSchedulesBtn" type="button" class="btn"><svg class="icon"><use href="#icon-export"></use></svg> Export Schedules</button>
+          <input id="importSchedulesFile" type="file" accept=".csv" />
+          <button id="importSchedulesBtn" class="btn">Import Schedules CSV</button>
+        </div>
+      </form>
+
+      <div class="card">
+        <h3>Schedules</h3>
+        <div class="controls">
+          <label for="scheduleFilterBlock">Filter Block</label><select id="scheduleFilterBlock"><option value="">All</option></select>
+        </div>
+        <table id="scheduleTable" class="striped sortable" aria-live="polite">
+          <thead><tr><th data-key="block">Block</th><th data-key="liftNo">Lift</th><th data-key="type">Type</th><th data-key="start">Start</th><th data-key="end">End</th><th data-key="recurrence">Recurrence</th><th data-key="note">Note</th><th>Actions</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Timetable -->
+    <section id="timetablePanel" class="panel" hidden aria-labelledby="tabTimetable">
+      <h2>Suspension Timetable</h2>
+
+      <div class="card controls">
+        <label for="viewMode">View</label>
+        <select id="viewMode"><option value="day">Day</option><option value="week">Week</option></select>
+
+        <label for="ttDate">Date</label><input id="ttDate" type="date" />
+        <label for="ttStartTime">From</label><input id="ttStartTime" type="time" value="00:00" />
+        <label for="ttEndTime">To</label><input id="ttEndTime" type="time" value="23:59" />
+        <label for="ttSlotMins">Slot Minutes</label>
+        <select id="ttSlotMins">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="15">15</option>
+          <option value="30">30</option>
+          <option value="60">60</option>
+        </select>
+
+        <label for="ttFilterBlock">Block</label><select id="ttFilterBlock"><option value="">All</option></select>
+
+        <button id="renderTimetable" class="btn primary"><svg class="icon"><use href="#icon-calendar"></use></svg> Render</button>
+      </div>
+
+      <div id="timetableWrap" class="card timetableWrap" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden>
+    <svg class="icon small"><use href="#icon-check"></use></svg>
+    <span id="toastMsg">Saved</span>
+    <button id="toastClose" class="toast-close" aria-label="Close"><svg class="icon small"><use href="#icon-close"></use></svg></button>
+  </div>
+
+  <footer class="footer" role="contentinfo">
+    <small>Accessible Lift Dashboard • Data stored locally in your browser</small>
+  </footer>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
